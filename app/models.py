@@ -1,28 +1,20 @@
-
-"""Domain models for the Finance Tracker application."""
-
 from datetime import date, datetime
 import math
 
-
-class Category:
-    """Represent an expense category."""
+class Category: 
 
     __slots__ = ("_name", "_description")
 
     def __init__(self, name, description="General expenses"):
-        """Initialize a category after validating its details."""
         self.name = name
         self.description = description
 
     @property
     def name(self):
-        """Return the category name."""
         return self._name
 
     @name.setter
     def name(self, value):
-        """Validate and update the category name."""
         if not isinstance(value, str):
             raise TypeError("Category name must be a string")
         if not value.strip():
@@ -31,12 +23,10 @@ class Category:
 
     @property
     def description(self):
-        """Return the category description."""
         return self._description
 
     @description.setter
     def description(self, value):
-        """Validate and update the category description."""
         if not isinstance(value, str):
             raise TypeError("Description must be a string")
         if not value.strip():
@@ -45,37 +35,21 @@ class Category:
 
     @classmethod
     def from_name(cls, name):
-        """Create a category using only its name."""
         return cls(name)
 
     def __str__(self):
-        """Return a readable category representation."""
         return self.name
 
     def __eq__(self, other):
-        """Compare categories by their names."""
         if not isinstance(other, Category):
             return NotImplemented
         return self.name.casefold() == other.name.casefold()
 
 
 class Transaction:
-    """Represent an individual financial transaction."""
+    __slots__ = ("_amount","_category","_description","_transaction_date",)
 
-    __slots__ = (
-        "_amount",
-        "_category",
-        "_description",
-        "_transaction_date",
-    )
-
-    def __init__(
-        self,
-        amount,
-        category,
-        description,
-        transaction_date=None,
-    ):
+    def __init__(self,amount,category,description,transaction_date=None,):
         """Initialize a transaction after validating its details."""
         self.amount = amount
         self.category = category
@@ -88,12 +62,10 @@ class Transaction:
 
     @property
     def amount(self):
-        """Return the transaction amount."""
         return self._amount
 
     @amount.setter
     def amount(self, value):
-        """Validate and update the transaction amount."""
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             raise TypeError("Amount must be a number")
 
@@ -107,24 +79,20 @@ class Transaction:
 
     @property
     def category(self):
-        """Return the transaction category."""
         return self._category
 
     @category.setter
     def category(self, value):
-        """Validate and update the transaction category."""
         if not isinstance(value, Category):
             raise TypeError("Category must be a Category object")
         self._category = value
 
     @property
     def description(self):
-        """Return the transaction description."""
         return self._description
 
     @description.setter
     def description(self, value):
-        """Validate and update the transaction description."""
         if not isinstance(value, str):
             raise TypeError("Description must be a string")
         if not value.strip():
@@ -133,23 +101,19 @@ class Transaction:
 
     @property
     def transaction_date(self):
-        """Return the transaction date."""
         return self._transaction_date
 
     @transaction_date.setter
     def transaction_date(self, value):
-        """Validate and update the transaction date."""
         if not isinstance(value, date) or isinstance(value, datetime):
             raise TypeError("Transaction date must be a date object")
         self._transaction_date = value
 
     @classmethod
     def create(cls, amount, category, description):
-        """Create a transaction using today's date."""
         return cls(amount, category, description)
 
     def __str__(self):
-        """Return a readable transaction representation."""
         return (
             f"{self.transaction_date} | "
             f"{self.category} | "
@@ -158,7 +122,6 @@ class Transaction:
         )
 
     def __eq__(self, other):
-        """Compare transactions by their details."""
         if not isinstance(other, Transaction):
             return NotImplemented
 
@@ -170,43 +133,36 @@ class Transaction:
         )
 
     def __lt__(self, other):
-        """Compare transactions by their amounts."""
         if not isinstance(other, Transaction):
             return NotImplemented
         return self.amount < other.amount
 
 
 class Budget:
-    """Represent a spending budget for a category."""
 
     __slots__ = ("_category", "_limit_amount", "_spent_amount")
 
     def __init__(self, category, limit_amount, spent_amount=0):
-        """Initialize a budget with its spending limit."""
         self.category = category
         self.limit_amount = limit_amount
         self.spent_amount = spent_amount
 
     @property
     def category(self):
-        """Return the budget category."""
         return self._category
 
     @category.setter
     def category(self, value):
-        """Validate and update the budget category."""
         if not isinstance(value, Category):
             raise TypeError("Category must be a Category object")
         self._category = value
 
     @property
     def limit_amount(self):
-        """Return the budget limit."""
         return self._limit_amount
 
     @limit_amount.setter
     def limit_amount(self, value):
-        """Validate and update the budget limit."""
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             raise TypeError("Budget limit must be a number")
         if not math.isfinite(value):
@@ -217,12 +173,10 @@ class Budget:
 
     @property
     def spent_amount(self):
-        """Return the amount already spent."""
         return self._spent_amount
 
     @spent_amount.setter
     def spent_amount(self, value):
-        """Validate and update the spent amount."""
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             raise TypeError("Spent amount must be a number")
         if not math.isfinite(value):
@@ -233,16 +187,13 @@ class Budget:
 
     @property
     def remaining_amount(self):
-        """Calculate the remaining budget."""
         return self.limit_amount - self.spent_amount
 
     @classmethod
     def create(cls, category, limit_amount):
-        """Create a budget with zero spending."""
         return cls(category, limit_amount)
 
     def __str__(self):
-        """Return a readable budget representation."""
         return (
             f"{self.category}: ₹{self.spent_amount:.2f} "
             f"spent out of ₹{self.limit_amount:.2f}"
@@ -250,7 +201,6 @@ class Budget:
 
 
 def run_basic_assertions():
-    """Run basic tests for all domain models."""
 
     food = Category("Food", "Daily food expenses")
     transport = Category.from_name("Transport")
@@ -291,7 +241,6 @@ def run_basic_assertions():
 
 
 def check_raises(error_type, operation):
-    """Check whether an operation raises the expected exception."""
     try:
         operation()
     except error_type:
@@ -308,7 +257,6 @@ def check_raises(error_type, operation):
 
 
 def run_validation_tests():
-    """Test invalid inputs for the domain models."""
 
     food = Category("Food")
 
