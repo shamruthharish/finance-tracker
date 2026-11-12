@@ -1,5 +1,7 @@
+
 import math
 from datetime import date, datetime
+from app.decorators import validate_amount
 
 
 class Category:
@@ -43,7 +45,6 @@ class Category:
 
 
 class Transaction:
-
     __slots__ = (
         "_amount",
         "_category",
@@ -51,6 +52,7 @@ class Transaction:
         "_transaction_date",
     )
 
+    @validate_amount
     def __init__(self, amount, category, description, transaction_date=None):
         self.amount = amount
         self.category = category
@@ -103,8 +105,7 @@ class Transaction:
 
     @classmethod
     def create(cls, amount, category_name, description):
-        category = Category.from_name(category_name)
-        return cls(amount, category, description)
+        return cls(amount, Category.from_name(category_name), description)
 
     def __str__(self):
         return (
@@ -129,7 +130,6 @@ class Transaction:
 
 
 class Budget:
-
     __slots__ = ("_category", "_limit_amount", "_spent_amount")
 
     def __init__(self, category, limit_amount, spent_amount=0):
