@@ -1,4 +1,3 @@
-
 import argparse
 import json
 from pathlib import Path
@@ -7,8 +6,20 @@ from colorama import Fore, Style, init
 from tabulate import tabulate
 
 from app.models import Category, Transaction
+from app.logging_config import (
+    logger,
+    setup_logging,
+    log_operation
+)
+from app.exceptions import (
+    TransactionError,
+    InvalidAmountError,
+    InvalidCategoryError,
+    InvalidTransactionDataError
+)
 
 init(autoreset=True)
+
 
 DATA_FILE = Path(__file__).resolve().parent / "transactions.json"
 
@@ -32,12 +43,21 @@ def save_transactions(transactions: list[dict]) -> None:
 
 def add_transaction(args: argparse.Namespace) -> None:
     """Validate and save a new transaction."""
+    if args.amount <= 0:
+        raise InvalidAmountError("Amount must be greater than zero.")
 
-    transaction = Transaction(
-        args.amount,
-        Category(args.category),
-        args.description or args.category
-    )
+    if not args.category.strip():
+        raise InvalidCategoryError("Category cannot be empty.")
+
+    try:
+        transaction = Transaction(
+            args.amount,
+            Category(args.category),
+            args.description or args.category
+        )
+    except (ValueError, TypeError) as error:
+        raise InvalidTransactionDataError(str(error)) from error
+    
 
     records = load_transactions()
 
@@ -50,7 +70,13 @@ def add_transaction(args: argparse.Namespace) -> None:
     })
 
     save_transactions(records)
-
+    logger.info(
+    "Transaction saved: %s | Category: %s | Amount: %.2f | Type: %s",
+    transaction.description,
+    transaction.category,
+    transaction.amount,
+    args.type
+)
     print(Fore.GREEN + "\n✓ Transaction saved successfully!")
     print(f"  Description : {transaction.description}")
     print(f"  Category    : {transaction.category}")
@@ -124,6 +150,9 @@ def show_dashboard() -> None:
 
 
 def main() -> None:
+    setup_logging()
+    
+    logger.info("Finance Tracker application started")
     parser = argparse.ArgumentParser(
         description="Finance Tracker Pro - Manage your finances"
     )
@@ -179,18 +208,20 @@ def main() -> None:
     args = parser.parse_args()
 
     try:
-        if args.command == "add":
-            add_transaction(args)
+        with log_operation(f"command: {args.command}"):
 
-        elif args.command == "list":
-            list_transactions()
+            if args.command == "add":
+                add_transaction(args)
 
-        elif args.command == "dashboard":
-            show_dashboard()
+            elif args.command == "list":
+                list_transactions()
 
-    except (ValueError, TypeError) as error:
+            elif args.command == "dashboard":
+                show_dashboard()
+
+    except (TransactionError, ValueError, TypeError) as error:
         print(Fore.RED + f"\nError: {error}")
-
 
 if __name__ == "__main__":
     main()
+
