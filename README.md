@@ -57,3 +57,4 @@ List expenses:
 ```bash
 python app/main.py list
 ```
+![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)

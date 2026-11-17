@@ -130,6 +130,9 @@ class Transaction:
 
 
 class Budget:
+    @property
+    def is_exceeded(self):
+       return self.spent_amount > self.limit_amount
     __slots__ = ("_category", "_limit_amount", "_spent_amount")
 
     def __init__(self, category, limit_amount, spent_amount=0):

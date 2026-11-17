@@ -1,0 +1,39 @@
+2026-11-13 10:46:39,285 - finance_tracker - ERROR - Test error message
+2026-11-13 10:47:03,504 - finance_tracker - ERROR - Test error message
+2026-11-13 11:01:20,785 - finance_tracker - INFO - Finance Tracker application started
+2026-11-13 11:02:14,439 - finance_tracker - INFO - Finance Tracker application started
+2026-11-13 11:02:14,441 - finance_tracker - ERROR - Operation failed: command: add
+Traceback (most recent call last):
+  File "/Users/shamruthharish/Documents/finance-tracker/app/logging_config.py", line 31, in log_operation
+    yield
+  File "/Users/shamruthharish/Documents/finance-tracker/app/main.py", line 214, in main
+    add_transaction(args)
+    ~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/shamruthharish/Documents/finance-tracker/app/main.py", line 47, in add_transaction
+    raise InvalidAmountError("Amount must be greater than zero.")
+app.exceptions.InvalidAmountError: Amount must be greater than zero.
+2026-11-13 11:03:27,033 - finance_tracker - INFO - Finance Tracker application started
+2026-11-13 11:03:27,035 - finance_tracker - ERROR - Operation failed: command: add
+Traceback (most recent call last):
+  File "/Users/shamruthharish/Documents/finance-tracker/app/logging_config.py", line 31, in log_operation
+    yield
+  File "/Users/shamruthharish/Documents/finance-tracker/app/main.py", line 214, in main
+    add_transaction(args)
+    ~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/shamruthharish/Documents/finance-tracker/app/main.py", line 47, in add_transaction
+    raise InvalidAmountError("Amount must be greater than zero.")
+app.exceptions.InvalidAmountError: Amount must be greater than zero.
+2026-11-13 11:14:03,438 - finance_tracker - INFO - Imported CSV row 2: Lunch
+2026-11-13 11:14:03,439 - finance_tracker - INFO - Imported CSV row 3: Monthly Salary
+2026-11-13 11:14:03,441 - finance_tracker - INFO - Imported CSV row 4: Bus Ticket
+2026-11-13 11:14:03,442 - finance_tracker - INFO - Imported CSV row 5: Snacks
+2026-11-13 11:14:03,444 - finance_tracker - INFO - Imported CSV row 6: Clothes
+2026-11-13 11:14:03,445 - finance_tracker - WARNING - Skipped CSV row 7: -100.0 is less than or equal to the minimum of 0
+
+Failed validating 'exclusiveMinimum' in schema['properties']['amount']:
+    {'type': 'number', 'exclusiveMinimum': 0}
+
+On instance['amount']:
+    -100.0
+2026-11-13 11:14:03,445 - finance_tracker - WARNING - Skipped CSV row 8: could not convert string to float: 'abc'
+2026-11-13 11:14:03,446 - finance_tracker - INFO - Saved 6 transactions to JSON.

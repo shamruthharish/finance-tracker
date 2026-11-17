@@ -1,0 +1,8 @@
+amount,category,description,date,type
+500,Food,Lunch,2026-11-12,expense
+2000,Salary,Monthly Salary,2026-11-12,income
+300,Travel,Bus Ticket,2026-11-13,expense
+150,Food,Snacks,2026-11-13,expense
+750,Shopping,Clothes,2026-11-13,expense
+-100,Food,Invalid Amount,2026-11-13,expense
+abc,Travel,Invalid Number,2026-11-13,expense
