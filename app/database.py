@@ -1,6 +1,7 @@
 
 from pathlib import Path
 from datetime import date
+from sqlalchemy import event
 
 from sqlalchemy import (
     create_engine,
@@ -9,6 +10,7 @@ from sqlalchemy import (
     String,
     Date,
     ForeignKey,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -31,6 +33,11 @@ engine = create_engine(
     DATABASE_URL,
     connect_args={"check_same_thread": False}
 )
+@event.listens_for(engine, "connect")
+def enable_foreign_keys(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 
 # Base class
@@ -57,8 +64,15 @@ class CategoryDB(Base):
 
     # One category can have many transactions
     transactions: Mapped[list["TransactionDB"]] = relationship(
-        back_populates="category"
-    )
+    back_populates="category",
+    cascade="all, delete-orphan",
+    passive_deletes=True
+)
+    budgets: Mapped[list["BudgetDB"]] = relationship(
+    back_populates="category",
+    cascade="all, delete-orphan",
+    passive_deletes=True
+)
 
 
 # Transaction database model
@@ -75,7 +89,7 @@ class TransactionDB(Base):
     amount: Mapped[float] = mapped_column(Float)
 
     category_id: Mapped[int] = mapped_column(
-        ForeignKey("categories.id"),
+        ForeignKey("categories.id", ondelete="CASCADE"),
         nullable=False
     )
 
@@ -89,7 +103,49 @@ class TransactionDB(Base):
     category: Mapped["CategoryDB"] = relationship(
         back_populates="transactions"
     )
+# Budget database model
+class BudgetDB(Base):
 
+    __tablename__ = "budgets"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True
+    )
+
+    category_id: Mapped[int] = mapped_column(
+    ForeignKey("categories.id", ondelete="CASCADE"),
+    nullable=False
+)
+
+    month: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False
+    )
+
+    year: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False
+    )
+
+    limit_amount: Mapped[float] = mapped_column(
+        Float,
+        nullable=False
+    )
+
+    category: Mapped["CategoryDB"] = relationship(
+        back_populates="budgets"
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "category_id",
+            "month",
+            "year",
+            name="unique_category_month_budget"
+        ),
+    )
 
 # Session factory
 SessionLocal = sessionmaker(

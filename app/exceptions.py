@@ -21,3 +21,7 @@ class TransactionNotFoundError(TransactionError):
 class InvalidTransactionDataError(TransactionError):
     """Raised when transaction data is invalid."""
     pass
+
+class BudgetExceededError(Exception):
+    """Raised when monthly spending exceeds the budget."""
+    pass
