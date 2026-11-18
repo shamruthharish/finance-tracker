@@ -23,7 +23,7 @@ class Category:
 
     @property
     def description(self):
-        return self._description
+      return self._description
 
     @description.setter
     def description(self, value):

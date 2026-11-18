@@ -2,7 +2,9 @@
 import csv
 from datetime import date
 
-from app.database import SessionLocal, TransactionDB
+from sqlalchemy import select
+
+from app.database import SessionLocal, TransactionDB, CategoryDB
 
 
 def migrate_csv(csv_path):
@@ -12,16 +14,26 @@ def migrate_csv(csv_path):
 
     with SessionLocal() as session:
 
+        # Load existing categories into a dictionary
+        categories = {
+            category.name: category
+            for category in session.scalars(
+                select(CategoryDB)
+            ).all()
+        }
+
         # Collect existing transactions to prevent duplicates
         existing_records = {
             (
                 item.amount,
-                item.category,
+                item.category.name,
                 item.description,
                 item.transaction_date,
                 item.type
             )
-            for item in session.query(TransactionDB).all()
+            for item in session.scalars(
+                select(TransactionDB)
+            ).all()
         }
 
         with open(csv_path, "r", newline="", encoding="utf-8") as file:
@@ -30,7 +42,7 @@ def migrate_csv(csv_path):
             for row in reader:
                 try:
                     amount = float(row["amount"])
-                    category = row["category"].strip()
+                    category_name = row["category"].strip()
                     description = row["description"].strip()
                     transaction_date = date.fromisoformat(row["date"])
                     transaction_type = row["type"].strip()
@@ -38,7 +50,7 @@ def migrate_csv(csv_path):
                     # Validate transaction
                     if (
                         amount <= 0
-                        or not category
+                        or not category_name
                         or not description
                         or transaction_type not in ("income", "expense")
                     ):
@@ -46,7 +58,7 @@ def migrate_csv(csv_path):
 
                     record = (
                         amount,
-                        category,
+                        category_name,
                         description,
                         transaction_date,
                         transaction_type
@@ -57,6 +69,15 @@ def migrate_csv(csv_path):
                         duplicates += 1
                         continue
 
+                    # Find or create the category
+                    category = categories.get(category_name)
+
+                    if category is None:
+                        category = CategoryDB(name=category_name)
+                        session.add(category)
+                        categories[category_name] = category
+
+                    # Create transaction using CategoryDB relationship
                     transaction = TransactionDB(
                         amount=amount,
                         category=category,
