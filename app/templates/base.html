@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Finance Tracker{% endblock %}</title>
+</head>
+<body>
+
+    <header>
+        <h1>Finance Tracker</h1>
+        <nav>
+            <a href="{{ url_for('transactions.list_transactions') }}">
+                Transactions
+            </a>
+            |
+            <a href="{{ url_for('budget.list_budgets') }}">
+                Budgets
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+</html>

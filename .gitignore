@@ -1,5 +1,21 @@
-.DS_Store
+# Python environment
+.venv/
+
+# Python cache
 __pycache__/
 *.py[cod]
-.venv/
-app/transactions.json
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# Mac
+.DS_Store
+
+# Temporary files
+*.tmp

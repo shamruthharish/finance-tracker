@@ -1,0 +1,44 @@
+
+{% extends "base.html" %}
+
+{% block title %}Transactions | Finance Tracker{% endblock %}
+
+{% block content %}
+
+<h2>All Transactions</h2>
+
+{% if transactions %}
+
+<table border="1" cellpadding="10">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Type</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction.id }}</td>
+            <td>{{ "%.2f"|format(transaction.amount) }}</td>
+            <td>{{ transaction.category.name }}</td>
+            <td>{{ transaction.description }}</td>
+            <td>{{ transaction.transaction_date }}</td>
+            <td>{{ transaction.type }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% else %}
+
+<p>No transactions found.</p>
+
+{% endif %}
+
+{% endblock %}

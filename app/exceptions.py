@@ -25,3 +25,11 @@ class InvalidTransactionDataError(TransactionError):
 class BudgetExceededError(Exception):
     """Raised when monthly spending exceeds the budget."""
     pass
+
+class CSVImportError(TransactionError):
+    """Raised when CSV import fails."""
+    pass
+
+class CSVImportError(TransactionError):
+    """Raised when CSV import fails."""
+    pass
