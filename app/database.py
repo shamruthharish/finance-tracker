@@ -2,6 +2,7 @@
 from pathlib import Path
 from datetime import date
 from sqlalchemy import event
+from flask_login import UserMixin
 
 from sqlalchemy import (
     create_engine,
@@ -43,6 +44,27 @@ def enable_foreign_keys(dbapi_connection, connection_record):
 # Base class
 class Base(DeclarativeBase):
     pass
+
+
+class User(UserMixin, Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+
+    username: Mapped[str] = mapped_column(
+        String(80), unique=True, nullable=False
+    )
+
+    email: Mapped[str] = mapped_column(
+        String(120), unique=True, nullable=False
+    )
+
+    password_hash: Mapped[str] = mapped_column(
+        String(255), nullable=False
+    )
+
 
 
 # Category database model
