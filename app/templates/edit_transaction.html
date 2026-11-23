@@ -1,0 +1,100 @@
+
+{% extends "base.html" %}
+
+{% block title %}Edit Transaction | Finance Tracker{% endblock %}
+
+{% block content %}
+
+<h2>Edit Transaction #{{ transaction.id }}</h2>
+
+{% if error %}
+    <p style="color: red;">{{ error }}</p>
+{% endif %}
+
+<form method="POST">
+
+    <div>
+        <label>Amount</label><br>
+        <input
+            type="number"
+            name="amount"
+            step="0.01"
+            min="0.01"
+            required
+            value="{{ form_data.get('amount', '') }}"
+        >
+    </div>
+
+    <br>
+
+    <div>
+        <label>Category</label><br>
+        <select name="category_id" required>
+            {% for category in categories %}
+                <option
+                    value="{{ category.id }}"
+                    {% if form_data.get('category_id', '')|string == category.id|string %}
+                        selected
+                    {% endif %}
+                >
+                    {{ category.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <br>
+
+    <div>
+        <label>Description</label><br>
+        <input
+            type="text"
+            name="description"
+            maxlength="255"
+            required
+            value="{{ form_data.get('description', '') }}"
+        >
+    </div>
+
+    <br>
+
+    <div>
+        <label>Date</label><br>
+        <input
+            type="date"
+            name="transaction_date"
+            required
+            value="{{ form_data.get('transaction_date', '') }}"
+        >
+    </div>
+
+    <br>
+
+    <div>
+        <label>Type</label><br>
+        <select name="type" required>
+            <option value="income"
+                {% if form_data.get('type') == 'income' %}selected{% endif %}>
+                Income
+            </option>
+
+            <option value="expense"
+                {% if form_data.get('type') == 'expense' %}selected{% endif %}>
+                Expense
+            </option>
+        </select>
+    </div>
+
+    <br>
+
+    <button type="submit">Update Transaction</button>
+
+</form>
+
+<br>
+
+<a href="{{ url_for('transactions.list_transactions') }}">
+    Cancel
+</a>
+
+{% endblock %}

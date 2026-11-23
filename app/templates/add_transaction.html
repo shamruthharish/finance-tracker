@@ -1,0 +1,117 @@
+
+{% extends "base.html" %}
+
+{% block title %}Add Transaction | Finance Tracker{% endblock %}
+
+{% block content %}
+
+<h2>Add New Transaction</h2>
+
+{% if error %}
+    <p style="color: red;">{{ error }}</p>
+{% endif %}
+
+{% if not categories %}
+    <p>No categories available. Add categories before creating transactions.</p>
+{% else %}
+
+<form method="POST" action="{{ url_for('transactions.add_transaction') }}">
+
+    <div>
+        <label for="amount">Amount</label><br>
+        <input
+            type="number"
+            id="amount"
+            name="amount"
+            step="0.01"
+            min="0.01"
+            required
+            value="{{ form_data.get('amount', '') }}"
+        >
+    </div>
+
+    <br>
+
+    <div>
+        <label for="category_id">Category</label><br>
+
+        <select id="category_id" name="category_id" required>
+            <option value="">Select Category</option>
+
+            {% for category in categories %}
+                <option
+                    value="{{ category.id }}"
+                    {% if form_data.get('category_id', '')|string == category.id|string %}
+                        selected
+                    {% endif %}
+                >
+                    {{ category.name }}
+                </option>
+            {% endfor %}
+
+        </select>
+    </div>
+
+    <br>
+
+    <div>
+        <label for="description">Description</label><br>
+        <input
+            type="text"
+            id="description"
+            name="description"
+            maxlength="255"
+            required
+            value="{{ form_data.get('description', '') }}"
+        >
+    </div>
+
+    <br>
+
+    <div>
+        <label for="transaction_date">Date</label><br>
+        <input
+            type="date"
+            id="transaction_date"
+            name="transaction_date"
+            required
+            value="{{ form_data.get('transaction_date', '') }}"
+        >
+    </div>
+
+    <br>
+
+    <div>
+        <label for="type">Transaction Type</label><br>
+
+        <select id="type" name="type" required>
+            <option value="">Select Type</option>
+
+            <option value="income"
+                {% if form_data.get('type') == 'income' %}selected{% endif %}>
+                Income
+            </option>
+
+            <option value="expense"
+                {% if form_data.get('type') == 'expense' %}selected{% endif %}>
+                Expense
+            </option>
+        </select>
+    </div>
+
+    <br>
+
+    <button type="submit">Save Transaction</button>
+
+</form>
+
+{% endif %}
+
+<br>
+
+<a href="{{ url_for('transactions.list_transactions') }}">
+    Back to Transactions
+</a>
+
+{% endblock %}
+
