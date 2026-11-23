@@ -16,6 +16,9 @@
 {% else %}
 
 <form method="POST" action="{{ url_for('transactions.add_transaction') }}">
+    <input type="hidden"
+       name="csrf_token"
+       value="{{ csrf_token() }}">
 
     <div>
         <label for="amount">Amount</label><br>

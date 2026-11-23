@@ -64,6 +64,13 @@ class User(UserMixin, Base):
     password_hash: Mapped[str] = mapped_column(
         String(255), nullable=False
     )
+    transactions: Mapped[list["TransactionDB"]] = relationship(
+        back_populates="user"
+    )
+
+    budgets: Mapped[list["BudgetDB"]] = relationship(
+        back_populates="user"
+    )
 
 
 
@@ -107,6 +114,10 @@ class TransactionDB(Base):
         primary_key=True,
         autoincrement=True
     )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False
+    )
 
     amount: Mapped[float] = mapped_column(Float)
 
@@ -120,7 +131,9 @@ class TransactionDB(Base):
     transaction_date: Mapped[date] = mapped_column(Date)
 
     type: Mapped[str] = mapped_column(String(20))
-
+    user: Mapped["User"] = relationship(
+        back_populates="transactions"
+    )
     # Many transactions belong to one category
     category: Mapped["CategoryDB"] = relationship(
         back_populates="transactions"
@@ -134,6 +147,10 @@ class BudgetDB(Base):
         Integer,
         primary_key=True,
         autoincrement=True
+    )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False
     )
 
     category_id: Mapped[int] = mapped_column(
@@ -155,6 +172,9 @@ class BudgetDB(Base):
         Float,
         nullable=False
     )
+    user: Mapped["User"] = relationship(
+        back_populates="budgets"
+    )
 
     category: Mapped["CategoryDB"] = relationship(
         back_populates="budgets"
@@ -162,10 +182,11 @@ class BudgetDB(Base):
 
     __table_args__ = (
         UniqueConstraint(
+            "user_id",
             "category_id",
             "month",
             "year",
-            name="unique_category_month_budget"
+            name="unique_user_category_month_budget"
         ),
     )
 

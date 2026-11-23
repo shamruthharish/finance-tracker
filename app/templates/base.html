@@ -25,6 +25,9 @@
         <form method="POST"
               action="{{ url_for('auth.logout') }}"
               style="display:inline;">
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
             <button type="submit">Logout</button>
         </form>
     {% else %}
@@ -36,6 +39,16 @@
     </header>
 
     <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
         {% block content %}{% endblock %}
     </main>
 

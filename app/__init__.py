@@ -1,6 +1,6 @@
 
 from flask import Flask
-from app.extensions import db, login_manager
+from app.extensions import db, login_manager, csrf
 
 
 def create_app(config_class=None):
@@ -23,7 +23,7 @@ def create_app(config_class=None):
             return db.session.get(User, int(user_id))
         except (ValueError, TypeError):
             return None
-
+    csrf.init_app(app)
     from app.routes.transactions import transactions_bp
     from app.routes.budget import budget_bp
     from app.routes.auth import auth_bp

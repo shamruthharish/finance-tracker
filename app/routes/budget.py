@@ -13,15 +13,19 @@ from flask import (
 
 from app.extensions import db
 from app.database import BudgetDB, CategoryDB
+from flask_login import login_required, current_user
 
 budget_bp = Blueprint("budget", __name__)
 
 
 @budget_bp.route("/")
+@login_required
 def list_budgets():
 
     budgets = db.session.execute(
-        db.select(BudgetDB).order_by(
+        db.select(BudgetDB)
+        .where(BudgetDB.user_id == current_user.id)
+        .order_by(
             BudgetDB.year.desc(),
             BudgetDB.month.desc()
         )
@@ -34,6 +38,7 @@ def list_budgets():
 
 
 @budget_bp.route("/add", methods=["GET", "POST"])
+@login_required
 def add_budget():
     today_year=date.today().year
     categories = db.session.execute(
@@ -91,6 +96,7 @@ def add_budget():
 
         existing_budget = db.session.execute(
             db.select(BudgetDB).where(
+                BudgetDB.user_id == current_user.id,
                 BudgetDB.category_id == category_id,
                 BudgetDB.month == month,
                 BudgetDB.year == year
@@ -108,6 +114,7 @@ def add_budget():
             )
 
         budget = BudgetDB(
+            user_id=current_user.id,
             category_id=category_id,
             month=month,
             year=year,

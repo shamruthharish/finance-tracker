@@ -4,8 +4,9 @@ from datetime import date
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from werkzeug.security import generate_password_hash
 
-from app.database import Base, CategoryDB, TransactionDB
+from app.database import Base, CategoryDB, TransactionDB, User
 from app.reports import category_summary
 
 
@@ -26,11 +27,18 @@ def test_session():
         travel = CategoryDB(name="Travel")
         salary = CategoryDB(name="Salary")
 
-        session.add_all([food, shopping, travel, salary])
+        user = User(
+            username="reportuser",
+            email="report@example.com",
+            password_hash=generate_password_hash("TestPassword123")
+        )
+
+        session.add_all([food, shopping, travel, salary, user])
         session.commit()
 
         transactions = [
             TransactionDB(
+                user_id=user.id,
                 amount=150,
                 category=food,
                 description="Snacks",
@@ -38,6 +46,7 @@ def test_session():
                 type="expense"
             ),
             TransactionDB(
+                user_id=user.id,
                 amount=500,
                 category=food,
                 description="Lunch",
@@ -45,6 +54,7 @@ def test_session():
                 type="expense"
             ),
             TransactionDB(
+                user_id=user.id,
                 amount=750,
                 category=shopping,
                 description="Clothes",
@@ -52,6 +62,7 @@ def test_session():
                 type="expense"
             ),
             TransactionDB(
+                user_id=user.id,
                 amount=300,
                 category=travel,
                 description="Bus Ticket",
@@ -59,6 +70,7 @@ def test_session():
                 type="expense"
             ),
             TransactionDB(
+                user_id=user.id,
                 amount=2000,
                 category=salary,
                 description="Monthly Salary",
@@ -66,6 +78,7 @@ def test_session():
                 type="income"
             ),
             TransactionDB(
+                user_id=user.id,
                 amount=900,
                 category=shopping,
                 description="December Shopping",

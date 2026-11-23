@@ -1,10 +1,11 @@
 
 import pytest
+from werkzeug.security import generate_password_hash
 
 from app import create_app
 from config import TestingConfig
 from app.extensions import db
-from app.database import BudgetDB, CategoryDB
+from app.database import BudgetDB, CategoryDB, User
 
 
 @pytest.fixture
@@ -17,7 +18,13 @@ def app():
         food = CategoryDB(name="Food")
         travel = CategoryDB(name="Travel")
 
-        db.session.add_all([food, travel])
+        user = User(
+            username="testuser",
+            email="test@example.com",
+            password_hash=generate_password_hash("TestPassword123")
+        )
+
+        db.session.add_all([food, travel, user])
         db.session.commit()
 
         yield app
@@ -28,7 +35,19 @@ def app():
 
 @pytest.fixture
 def client(app):
-    return app.test_client()
+    client = app.test_client()
+
+    response = client.post(
+        "/login",
+        data={
+            "email": "test@example.com",
+            "password": "TestPassword123"
+        }
+    )
+
+    assert response.status_code == 302
+
+    return client
 
 
 @pytest.fixture
@@ -73,6 +92,7 @@ def test_add_budget(client, app, category_id):
         assert budget.limit_amount == 3000
         assert budget.month == 11
         assert budget.year == 2026
+        assert budget.user_id == 1
 
 
 def test_invalid_budget_amount(client, category_id):

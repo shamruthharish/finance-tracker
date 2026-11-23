@@ -80,12 +80,20 @@ def category_id(app):
         return category.id
 
 
+
 @pytest.fixture
 def transaction_id(app, category_id):
     """Create a transaction for edit and delete tests."""
 
     with app.app_context():
+        user = db.session.execute(
+            db.select(User).where(
+                User.email == "test@example.com"
+            )
+        ).scalar_one()
+
         transaction = TransactionDB(
+            user_id=user.id,
             amount=500,
             category_id=category_id,
             description="Test Lunch",
@@ -97,6 +105,7 @@ def transaction_id(app, category_id):
         db.session.commit()
 
         return transaction.id
+
 
 
 def test_transactions_page_loads(client):

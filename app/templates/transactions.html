@@ -48,6 +48,10 @@
         style="display:inline;"
         onsubmit="return confirm('Are you sure you want to delete this transaction?');"
     >
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token() }}">
+
         <button type="submit">Delete</button>
     </form>
 </td>

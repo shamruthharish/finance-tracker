@@ -11,7 +11,7 @@ from flask import (
     abort,
 )
 
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from app.extensions import db
 from app.database import TransactionDB, CategoryDB
@@ -24,9 +24,9 @@ transactions_bp = Blueprint("transactions", __name__)
 @login_required
 def list_transactions():
     transactions = db.session.execute(
-        db.select(TransactionDB).order_by(
-            TransactionDB.transaction_date.desc()
-        )
+        db.select(TransactionDB)
+        .where(TransactionDB.user_id == current_user.id)
+        .order_by(TransactionDB.transaction_date.desc())
     ).scalars().all()
 
     return render_template(
@@ -104,6 +104,7 @@ def add_transaction():
 
         # Save transaction
         transaction = TransactionDB(
+            user_id=current_user.id,
             amount=amount,
             category_id=category.id,
             description=description,
@@ -138,7 +139,12 @@ def add_transaction():
 @transactions_bp.route("/edit/<int:transaction_id>", methods=["GET", "POST"])
 @login_required
 def edit_transaction(transaction_id):
-    transaction = db.session.get(TransactionDB, transaction_id)
+    transaction = db.session.execute(
+        db.select(TransactionDB).where(
+            TransactionDB.id == transaction_id,
+            TransactionDB.user_id == current_user.id
+        )
+    ).scalar_one_or_none()
 
     if transaction is None:
         abort(404)
@@ -243,7 +249,12 @@ def edit_transaction(transaction_id):
 @transactions_bp.route("/delete/<int:transaction_id>", methods=["POST"])
 @login_required
 def delete_transaction(transaction_id):
-    transaction = db.session.get(TransactionDB, transaction_id)
+    transaction = db.session.execute(
+        db.select(TransactionDB).where(
+            TransactionDB.id == transaction_id,
+            TransactionDB.user_id == current_user.id
+        )
+    ).scalar_one_or_none()
 
     if transaction is None:
         abort(404)
