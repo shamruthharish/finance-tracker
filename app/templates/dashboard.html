@@ -1,27 +1,35 @@
 
 {% extends "base.html" %}
 
+{% block title %}Dashboard | Finance Tracker{% endblock %}
+
 {% block content %}
 
-<div class="container-fluid py-4">
+<div class="container py-4">
 
     <h2 class="mb-4">Financial Dashboard</h2>
 
+    <p class="text-muted">
+        Overview of your spending and monthly expenses.
+    </p>
+
     <div class="row g-4">
 
-        <!-- Category Spending -->
+        <!-- Category Spending Doughnut Chart -->
         <div class="col-12 col-lg-6">
 
             <div class="card shadow-sm h-100">
 
                 <div class="card-body">
 
-                    <h5 class="card-title">
+                    <h5 class="card-title mb-4">
                         Spending by Category
                     </h5>
 
-                    <div style="height:300px;">
+                    <div style="height: 320px; position: relative;">
+
                         <canvas id="categoryChart"></canvas>
+
                     </div>
 
                 </div>
@@ -30,19 +38,22 @@
 
         </div>
 
-        <!-- Monthly Spending -->
+
+        <!-- Monthly Spending Bar Chart -->
         <div class="col-12 col-lg-6">
 
             <div class="card shadow-sm h-100">
 
                 <div class="card-body">
 
-                    <h5 class="card-title">
+                    <h5 class="card-title mb-4">
                         Monthly Spending Trend
                     </h5>
 
-                    <div style="height:300px;">
+                    <div style="height: 320px; position: relative;">
+
                         <canvas id="monthlyChart"></canvas>
+
                     </div>
 
                 </div>
@@ -55,12 +66,15 @@
 
 </div>
 
+
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+
 <script>
 
-    // Python data passed through Jinja2
+    // Receive Python data through Jinja2 JSON
+
     const categoryLabels =
         {{ category_labels | tojson }};
 
@@ -74,7 +88,8 @@
         {{ monthly_amounts | tojson }};
 
 
-    // Doughnut Chart
+    // 1. Doughnut Chart - Spending by Category
+
     const categoryCanvas =
         document.getElementById("categoryChart");
 
@@ -83,10 +98,12 @@
         type: "doughnut",
 
         data: {
+
             labels: categoryLabels,
 
             datasets: [{
-                label: "Spending",
+
+                label: "Expenses",
 
                 data: categoryAmounts,
 
@@ -96,20 +113,38 @@
                     "#e15759",
                     "#76b7b2",
                     "#59a14f",
-                    "#edc949"
-                ]
+                    "#edc949",
+                    "#af7aa1",
+                    "#ff9da7"
+                ],
+
+                borderWidth: 2
+
             }]
+
         },
 
         options: {
+
             responsive: true,
-            maintainAspectRatio: false
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+                    position: "bottom"
+                }
+
+            }
+
         }
 
     });
 
 
-    // Monthly Bar Chart
+    // 2. Bar Chart - Monthly Spending Trend
+
     const monthlyCanvas =
         document.getElementById("monthlyChart");
 
@@ -118,9 +153,11 @@
         type: "bar",
 
         data: {
+
             labels: monthlyLabels,
 
             datasets: [{
+
                 label: "Monthly Expenses (₹)",
 
                 data: monthlyAmounts,
@@ -128,19 +165,41 @@
                 backgroundColor: "#4e79a7",
 
                 borderRadius: 6
+
             }]
+
         },
 
         options: {
+
             responsive: true,
 
             maintainAspectRatio: false,
 
             scales: {
+
                 y: {
-                    beginAtZero: true
+
+                    beginAtZero: true,
+
+                    title: {
+                        display: true,
+                        text: "Amount (₹)"
+                    }
+
+                },
+
+                x: {
+
+                    title: {
+                        display: true,
+                        text: "Month"
+                    }
+
                 }
+
             }
+
         }
 
     });

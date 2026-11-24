@@ -1,4 +1,6 @@
+
 from flask import Blueprint, render_template
+from flask_login import login_required, current_user
 from sqlalchemy import func
 from datetime import date
 
@@ -14,6 +16,7 @@ dashboard_bp = Blueprint(
 
 
 @dashboard_bp.route("/")
+@login_required
 def dashboard():
 
     # 1. Spending by category
@@ -26,7 +29,10 @@ def dashboard():
             TransactionDB,
             CategoryDB.id == TransactionDB.category_id
         )
-        .filter(TransactionDB.type == "Expense")
+        .filter(
+            TransactionDB.user_id == current_user.id,
+            TransactionDB.type == "expense"
+        )
         .group_by(CategoryDB.name)
         .all()
     )
@@ -55,6 +61,13 @@ def dashboard():
         months.append(date(year, month_index, 1))
 
     # 3. Retrieve monthly expenses
+    start_month = months[0]
+
+    if today.month == 12:
+        next_month = date(today.year + 1, 1, 1)
+    else:
+        next_month = date(today.year, today.month + 1, 1)
+
     monthly_data = (
         db.session.query(
             func.strftime(
@@ -63,7 +76,12 @@ def dashboard():
             ),
             func.sum(TransactionDB.amount)
         )
-        .filter(TransactionDB.type == "Expense")
+        .filter(
+            TransactionDB.user_id == current_user.id,
+            TransactionDB.type == "expense",
+            TransactionDB.transaction_date >= start_month,
+            TransactionDB.transaction_date < next_month
+        )
         .group_by(
             func.strftime(
                 "%Y-%m",
