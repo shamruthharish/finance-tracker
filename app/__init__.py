@@ -27,7 +27,9 @@ def create_app(config_class=None):
     from app.routes.transactions import transactions_bp
     from app.routes.budget import budget_bp
     from app.routes.auth import auth_bp
+    from app.routes.dashboard import dashboard_bp
 
+    app.register_blueprint(dashboard_bp)
     app.register_blueprint(
         transactions_bp,
         url_prefix="/transactions"

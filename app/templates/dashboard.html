@@ -1,0 +1,150 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <h2 class="mb-4">Financial Dashboard</h2>
+
+    <div class="row g-4">
+
+        <!-- Category Spending -->
+        <div class="col-12 col-lg-6">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h5 class="card-title">
+                        Spending by Category
+                    </h5>
+
+                    <div style="height:300px;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Monthly Spending -->
+        <div class="col-12 col-lg-6">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h5 class="card-title">
+                        Monthly Spending Trend
+                    </h5>
+
+                    <div style="height:300px;">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    // Python data passed through Jinja2
+    const categoryLabels =
+        {{ category_labels | tojson }};
+
+    const categoryAmounts =
+        {{ category_amounts | tojson }};
+
+    const monthlyLabels =
+        {{ monthly_labels | tojson }};
+
+    const monthlyAmounts =
+        {{ monthly_amounts | tojson }};
+
+
+    // Doughnut Chart
+    const categoryCanvas =
+        document.getElementById("categoryChart");
+
+    new Chart(categoryCanvas, {
+
+        type: "doughnut",
+
+        data: {
+            labels: categoryLabels,
+
+            datasets: [{
+                label: "Spending",
+
+                data: categoryAmounts,
+
+                backgroundColor: [
+                    "#4e79a7",
+                    "#f28e2b",
+                    "#e15759",
+                    "#76b7b2",
+                    "#59a14f",
+                    "#edc949"
+                ]
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+
+    });
+
+
+    // Monthly Bar Chart
+    const monthlyCanvas =
+        document.getElementById("monthlyChart");
+
+    new Chart(monthlyCanvas, {
+
+        type: "bar",
+
+        data: {
+            labels: monthlyLabels,
+
+            datasets: [{
+                label: "Monthly Expenses (₹)",
+
+                data: monthlyAmounts,
+
+                backgroundColor: "#4e79a7",
+
+                borderRadius: 6
+            }]
+        },
+
+        options: {
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+
+    });
+
+</script>
+
+{% endblock %}
