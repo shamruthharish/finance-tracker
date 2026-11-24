@@ -19,3 +19,11 @@ htmlcov/
 
 # Temporary files
 *.tmp
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Generated charts and images
+category_spending.png
