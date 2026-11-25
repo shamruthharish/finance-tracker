@@ -5,6 +5,9 @@ BASE_DIR = Path(__file__).resolve().parent
 
 
 class Config:
+    MAX_CONTENT_LENGTH = 2 * 1024 * 1024  # 2 MB
+    UPLOAD_FOLDER = BASE_DIR / "uploads"
+    ALLOWED_EXTENSIONS = {"csv"}
     SECRET_KEY = "finance-tracker-secret-key"
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{BASE_DIR / 'finance_tracker.db'}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False

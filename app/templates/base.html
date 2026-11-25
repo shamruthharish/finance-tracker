@@ -44,6 +44,26 @@
 
                 |
 
+                <a class="text-white"
+                   href="{{ url_for('file_operations.import_transactions') }}">
+                    Import CSV
+                </a>
+
+                |
+
+                <a class="text-white"
+                   href="{{ url_for('file_operations.export_transactions') }}">
+                    Export CSV
+                </a>
+
+                |
+
+                <a class="text-white"
+                   href="{{ url_for('file_operations.export_pdf') }}">
+                    Export PDF
+                </a>
+                |
+
                 <span>
                     Welcome, {{ current_user.username }}
                 </span>

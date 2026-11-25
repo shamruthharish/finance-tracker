@@ -2,6 +2,7 @@ alembic==1.20.1
 ast_serialize==0.13.1
 attrs==26.1.0
 blinker==1.9.0
+charset-normalizer==3.5.3
 click==8.5.1
 colorama==0.4.6
 contourpy==1.4.0
@@ -36,6 +37,7 @@ pytest-cov==7.1.0
 python-dateutil==4.0.0
 PyYAML==6.0.3
 referencing==0.37.0
+reportlab==5.1.1
 rpds-py==2026.9.1
 SQLAlchemy==2.1.9
 tabulate==0.10.0

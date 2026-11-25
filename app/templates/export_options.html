@@ -1,0 +1,65 @@
+
+{% extends "base.html" %}
+
+{% block title %}Export Transactions{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>Export Transactions</h2>
+
+    <form method="GET"
+          action="{{ url_for('file_operations.export_transactions') }}">
+
+        <div class="mb-3">
+            <label class="form-label">Start Date</label>
+
+            <input type="date"
+                   name="start_date"
+                   class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">End Date</label>
+
+            <input type="date"
+                   name="end_date"
+                   class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Category</label>
+
+            <select name="category_id"
+                    class="form-select">
+
+                <option value="">All Categories</option>
+
+                {% for category in categories %}
+
+                    <option value="{{ category.id }}">
+                        {{ category.name }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary">
+            Download CSV
+        </button>
+
+        <button type="submit"
+                class="btn btn-danger"
+                formaction="{{ url_for('file_operations.export_pdf') }}">
+            Download PDF
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}
