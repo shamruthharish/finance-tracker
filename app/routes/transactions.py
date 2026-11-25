@@ -12,8 +12,11 @@ from flask import (
 )
 
 from flask_login import login_required, current_user
-
+from flask import render_template, request
 from app.extensions import db
+from sqlalchemy import or_
+
+from app import db
 from app.database import TransactionDB, CategoryDB
 
 
@@ -23,15 +26,91 @@ transactions_bp = Blueprint("transactions", __name__)
 @transactions_bp.route("/")
 @login_required
 def list_transactions():
-    transactions = db.session.execute(
-        db.select(TransactionDB)
-        .where(TransactionDB.user_id == current_user.id)
-        .order_by(TransactionDB.transaction_date.desc())
-    ).scalars().all()
 
+    # 1. Get filter values from URL
+    search = request.args.get("search", "").strip()
+    category_id = request.args.get("category", "").strip()
+    start_date = request.args.get("start_date", "").strip()
+    end_date = request.args.get("end_date", "").strip()
+
+    # 2. Start with the current user's transactions
+    query = db.select(TransactionDB).where(
+        TransactionDB.user_id == current_user.id
+    )
+
+    # 3. Search by description
+    if search:
+        query = query.where(
+            TransactionDB.description.ilike(f"%{search}%")
+        )
+
+    # 4. Filter by category
+    if category_id:
+        try:
+            category_id = int(category_id)
+
+            query = query.where(
+                TransactionDB.category_id == category_id
+            )
+        except ValueError:
+            category_id = ""
+
+    # 5. Filter by starting date
+    if start_date:
+        try:
+            start_date = date.fromisoformat(start_date)
+
+            query = query.where(
+                TransactionDB.transaction_date >= start_date
+            )
+        except ValueError:
+            start_date = ""
+
+    # 6. Filter by ending date
+    if end_date:
+        try:
+            end_date = date.fromisoformat(end_date)
+
+            query = query.where(
+                TransactionDB.transaction_date <= end_date
+            )
+        except ValueError:
+            end_date = ""
+
+    # 7. Sort newest transactions first
+    query = query.order_by(
+        TransactionDB.transaction_date.desc()
+    )
+
+    # 8. Paginate - 10 transactions per page
+    page = request.args.get("page", 1, type=int)
+
+    pagination = db.paginate(
+        query,
+        page=page,
+        per_page=10,
+        error_out=False
+    )
+
+    # 9. Get categories used by this user's transactions
+    categories = db.session.scalars(
+        db.select(CategoryDB)
+        .join(TransactionDB)
+        .where(TransactionDB.user_id == current_user.id)
+        .distinct()
+        .order_by(CategoryDB.name)
+    ).all()
+
+    # 10. Send results to HTML
     return render_template(
         "transactions.html",
-        transactions=transactions
+        transactions=pagination.items,
+        pagination=pagination,
+        categories=categories,
+        search=search,
+        selected_category=category_id,
+        start_date=start_date.isoformat() if isinstance(start_date, date) else start_date,
+        end_date=end_date.isoformat() if isinstance(end_date, date) else end_date
     )
 
 
